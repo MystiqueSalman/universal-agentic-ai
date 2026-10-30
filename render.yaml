@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: universal-agentic-ai
+    runtime: docker
+    plan: free
+    envVars:
+      - key: UAA_REQUIRE_AUTH
+        value: "0"
+      - key: UAA_MODEL
+        value: gpt-4o-mini
