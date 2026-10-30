@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Universal Agentic AI — Server Room (DEV)</title>
+<style>
+  :root{--bg:#040b18;--panel:#0a1830;--line:#12315e;--txt:#cfe6ff;--dim:#7fa6cc;--acc:#22d3ee;--ok:#34d399;--warn:#fbbf24;--err:#f87171}
+  *{box-sizing:border-box} body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#0b2a52,var(--bg));color:var(--txt);font-family:ui-monospace,Menlo,Consolas,monospace}
+  header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(6,18,38,.9);position:sticky;top:0;z-index:9;flex-wrap:wrap;gap:8px}
+  .logo{font-weight:700;letter-spacing:2px;color:#fff}.logo span{color:var(--acc)}
+  .badge{background:#7c2d12;color:#fdba74;border:1px solid #9a3412;padding:2px 8px;border-radius:6px;font-size:11px;margin-left:10px}
+  nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 18px 0;max-width:1440px;margin:0 auto}
+  nav button{background:#081a33;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:8px 14px;cursor:pointer}
+  nav button.on{color:#fff;border-color:var(--acc);background:#0e4a6e}
+  main{max-width:1440px;margin:0 auto;padding:14px 18px}
+  .view{display:none}.view.on{display:block}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .card b{font-size:21px;color:#fff;display:block}.card small{color:var(--dim)}
+  h2{font-size:13px;letter-spacing:2px;color:var(--acc);margin:20px 0 8px}
+  .core{display:flex;gap:14px;flex-wrap:wrap}
+  .core .node{flex:1;min-width:220px;text-align:center;border:1px solid var(--acc);border-radius:12px;padding:14px;background:linear-gradient(180deg,#082f4d,#071426)}
+  .core .node b{color:#fff;font-size:16px;letter-spacing:1px}
+  .depts,.agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:8px}
+  .dept,.agt{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px;font-size:12px}
+  .agt{cursor:pointer}.agt:hover{border-color:var(--acc)}
+  .dept b,.agt b{color:#fff;display:block;font-size:12px}
+  .n{color:var(--acc)}
+  #terminal{background:#02060f;border:1px solid var(--line);border-radius:10px;height:320px;overflow:auto;padding:10px;font-size:12px;line-height:1.65}
+  .ev-err{color:var(--err)} .ev-ok{color:var(--ok)} .ev-warn{color:var(--warn)}
+  .t{color:#5b7ea6}
+  form{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  input,select{background:#061226;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px}
+  input[type=text],input[type=email],input[type=password]{flex:1;min-width:200px}
+  button{background:#0e4a6e;border:1px solid var(--acc);color:#fff;border-radius:8px;padding:10px 16px;cursor:pointer}
+  button.ghost{background:#081a33;border-color:var(--line);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:12px} td,th{border-bottom:1px solid #0d2142;padding:6px 8px;text-align:left;vertical-align:top}
+  .st-COMPLETED,.st-RESOLVED{color:var(--ok)} .st-RUNNING{color:var(--acc)} .st-FAILED,.st-ESCALATED{color:var(--err)} .st-QUEUED,.st-PENDING{color:var(--warn)}
+  #inspector{border:1px solid var(--acc)}
+  footer{color:var(--dim);font-size:11px;padding:14px 18px;text-align:center}
+  .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:280px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">UNIVERSAL AGENTIC AI <span>| AI SERVER ROOM</span><span class="badge">DEV MODE — LOCAL DATA</span></div>
+  <div id="who" style="font-size:12px;color:var(--dim)">not signed in (dev Founder mode)</div>
+</header>
+<nav id="tabs">
+  <button data-v="room" class="on">Server Room</button>
+  <button data-v="agents">Agents</button>
+  <button data-v="projects">Projects</button>
+  <button data-v="incidents">Incidents</button>
+  <button data-v="factory">Agent Factory</button>
+  <button data-v="business">Business OS</button>
+  <button data-v="account">Account</button>
+</nav>
+<main>
+  <section class="view on" id="v-room">
+    <div class="grid" id="stats"></div>
+    <h2>CENTRAL INTELLIGENCE</h2>
+    <div class="core">
+      <div class="node"><b>MAIN AI</b><br/><small>Central Intelligence — strategy, quality, Founder reporting</small></div>
+      <div class="node"><b>MANAGEMENT AI</b><br/><small>Operations &amp; Coordination — planning, assignment, recovery</small></div>
+    </div>
+    <h2>SUBMIT OBJECTIVE</h2>
+    <form id="objform"><input type="text" id="objtitle" placeholder="e.g. Create a 15-minute animated educational film about Artificial Intelligence" required/><button>Launch objective</button></form>
+    <div id="objectives"></div>
+    <h2>DEPARTMENTS (20)</h2>
+    <div class="depts" id="depts"></div>
+    <h2>LIVE COMMAND TERMINAL — real events, streamed live</h2>
+    <div id="terminal"></div>
+  </section>
+
+  <section class="view" id="v-agents">
+    <h2>AGENT DIRECTORY — click an agent to inspect</h2>
+    <form id="agtsearch"><input type="text" id="agtq" placeholder="Search agents or skills…"/><select id="agtdept"></select><button>Search</button></form>
+    <div id="inspector"></div>
+    <div class="agents" id="agents"></div>
+  </section>
+
+  <section class="view" id="v-projects">
+    <h2>PROJECTS / OBJECTIVES</h2>
+    <div id="projects"></div>
+    <h2>FOUNDER APPROVALS (Level-3)</h2>
+    <form id="aprform"><input type="text" id="apraction" placeholder="Action needing approval (e.g. Change production DB schema)"/><button>Request approval</button></form>
+    <div id="approvals"></div>
+  </section>
+
+  <section class="view" id="v-incidents">
+    <h2>INCIDENT CENTRE — Management AI</h2>
+    <div id="incidents"></div>
+  </section>
+
+  <section class="view" id="v-factory">
+    <h2>AGENT FACTORY — create a specialist agent</h2>
+    <form id="facform">
+      <input type="text" id="facname" placeholder="Agent name (e.g. Hospital Administration AI)" required/>
+      <select id="facdept"></select>
+      <input type="text" id="facskills" placeholder="Skills, comma separated"/>
+      <button>Create agent</button>
+    </form>
+    <div id="facmsg"></div>
+  </section>
+
+  <section class="view" id="v-business">
+    <h2>BUSINESS OS — workspaces</h2>
+    <form id="wsform"><input type="text" id="wsname" placeholder="Workspace name" required/><input type="text" id="wsind" placeholder="Industry"/><button>Create workspace</button></form>
+    <div id="workspaces"></div>
+    <h2>ADD LEAD</h2>
+    <form id="leadform"><select id="leadws"></select><input type="text" id="leadname" placeholder="Lead name" required/><input type="text" id="leadsource" placeholder="Source"/><button>Add lead</button></form>
+    <div id="leads"></div>
+  </section>
+
+  <section class="view" id="v-account">
+    <h2>ACCOUNT</h2>
+    <div class="row">
+      <form id="regform" class="card"><b style="font-size:14px">Register</b><br/><br/>
+        <input type="email" id="regemail" placeholder="Email" required/><br/><br/>
+        <input type="password" id="regpass" placeholder="Password (8+ chars)" required/><br/><br/>
+        <button>Create account</button></form>
+      <form id="loginform" class="card"><b style="font-size:14px">Sign in</b><br/><br/>
+        <input type="email" id="logemail" placeholder="Email" required/><br/><br/>
+        <input type="password" id="logpass" placeholder="Password" required/><br/><br/>
+        <button>Sign in</button> <button type="button" class="ghost" id="logout">Sign out</button></form>
+    </div>
+    <div id="acctmsg"></div>
+  </section>
+</main>
+<footer>Universal Agentic AI · All figures on this page are live from the local backend. DEV mode is labelled because no production cloud is connected yet.</footer>
+<script>
+const $=s=>document.querySelector(s);
+let TOKEN=localStorage.getItem('uaa_token')||'';
+function hdr(){return TOKEN?{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'}:{'Content-Type':'application/json'}}
+async function j(url,opt){const r=await fetch(url,opt);return r.json()}
+function fmtT(ts){return new Date(ts*1000).toLocaleTimeString('en-GB')}
+// tabs
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));$('#v-'+b.dataset.v).classList.add('on');
+  if(b.dataset.v==='agents')loadAgents(); if(b.dataset.v==='projects'){loadProjects();loadApprovals()}
+  if(b.dataset.v==='incidents')loadIncidents(); if(b.dataset.v==='business')loadBiz();
+});
+// room
+async function refreshStats(){
+  const s=await j('/api/stats'); const m=await j('/api/model-router'); const w=await j('/api/watchdog');
+  const items=[['Total Agents',s.total_agents],['Active',s.active_agents],['Departments',s.departments],
+   ['Objectives',s.objectives],['Tasks Done',s.tasks_completed],['Tasks Failed',s.tasks_failed],
+   ['Incidents Open',s.incidents_open],['Events',s.events],['Model Router',m.available?m.provider:'local'],
+   ['Watchdog',w.healthy?'HEALTHY':'CHECK']];
+  $('#stats').innerHTML=items.map(([k,v])=>`<div class="card"><b>${v}</b><small>${k}</small></div>`).join('');
+}
+async function refreshDepts(){
+  const d=await j('/api/departments');
+  $('#depts').innerHTML=d.map(x=>`<div class="dept"><b>${x.department_id} — ${x.name}</b><span class="n">${x.agent_count} agents</span></div>`).join('');
+  const opts=d.map(x=>`<option value="${x.department_id}">${x.department_id} — ${x.name}</option>`).join('');
+  $('#facdept').innerHTML=opts; $('#agtdept').innerHTML='<option value="">All departments</option>'+opts;
+}
+function evLine(e){
+  const cls=e.status==='ERROR'?'ev-err':e.status==='WARN'?'ev-warn':e.status==='OK'?'ev-ok':'';
+  return `<div class="${cls}"><span class="t">[${fmtT(e.ts)}]</span> ${e.sender} → ${e.receiver}: ${e.message}</div>`;
+}
+async function refreshEvents(){
+  const ev=await j('/api/events?limit=80');
+  $('#terminal').innerHTML=ev.slice().reverse().map(evLine).join('');
+  const t=$('#terminal'); t.scrollTop=t.scrollHeight;
+}
+try{
+  const es=new EventSource('/api/events/stream');
+  es.onmessage=m=>{try{const e=JSON.parse(m.data); if(e.sender){const t=$('#terminal'); t.insertAdjacentHTML('beforeend',evLine(e)); t.scrollTop=t.scrollHeight;}}catch(_){}}; 
+}catch(_){}
+function objHTML(o){
+  return `<div class="card" style="margin-top:8px"><b style="font-size:14px">${o.objective_id} — ${o.title}</b>
+  <small>Status: <span class="st-${o.status}">${o.status}</span> · Planner: ${o.planner||'template'} · Progress: ${o.progress_pct}%</small>
+  <table>${(o.tasks||[]).map(t=>`<tr><td>${t.task_id}</td><td>${t.title}</td><td>${t.agent_id||'—'}</td><td class="st-${t.status}">${t.status}</td><td>${t.result||t.error||''}</td></tr>`).join('')}</table></div>`;
+}
+async function refreshObjectives(){
+  const os=await j('/api/objectives');
+  $('#objectives').innerHTML=os.slice().reverse().map(objHTML).join('');
+}
+$('#objform').addEventListener('submit',async e=>{e.preventDefault();
+  await j('/api/objectives',{method:'POST',headers:hdr(),body:JSON.stringify({title:$('#objtitle').value.trim()})});
+  $('#objtitle').value=''; refreshRoom();});
+// agents
+async function loadAgents(){
+  const q=($('#agtq').value||'').toLowerCase(), dept=$('#agtdept').value;
+  let list=await j('/api/agents'+(dept?('?department_id='+dept):''));
+  if(q) list=list.filter(a=>a.name.toLowerCase().includes(q)||a.skills.join(' ').includes(q));
+  $('#agents').innerHTML=list.slice(0,120).map(a=>`<div class="agt" onclick="inspect('${a.agent_id}')"><b>${a.name}</b>${a.department_id} · ${a.role}<br/><span class="n">${a.status}</span> · done ${a.tasks_completed} · quality ${a.quality_score}</div>`).join('')+(list.length>120?`<div class="agt">…and ${list.length-120} more — refine the search</div>`:'');
+}
+$('#agtsearch').addEventListener('submit',e=>{e.preventDefault();loadAgents()});
+async function inspect(id){
+  const a=await j('/api/agents/'+id);
+  $('#inspector').innerHTML=`<div class="card" id="inspector"><b style="font-size:15px">${a.name}</b>
+  <small>ID ${a.agent_id} · ${a.department} · Manager ${a.manager} · Model ${a.model_provider}/${a.model_id} · v${a.version}</small><br/>
+  <small>Skills: ${a.skills.join(', ')}</small><br/><small>Status: ${a.status} · Current task: ${a.current_task||'—'} · Completed ${a.tasks_completed} · Failed ${a.tasks_failed} · Success ${a.success_rate??'—'}% · Quality ${a.quality_score}</small><br/><br/>
+  <button onclick="act('${a.agent_id}','pause')">Pause</button> <button onclick="act('${a.agent_id}','resume')">Resume</button>
+  <button onclick="act('${a.agent_id}','quarantine')">Quarantine</button> <button onclick="act('${a.agent_id}','disable')">Disable</button></div>`;
+}
+async function act(id,action){await j(`/api/agents/${id}/${action}`,{method:'POST',headers:hdr()}); inspect(id); loadAgents();}
+// projects + approvals
+async function loadProjects(){const os=await j('/api/objectives'); $('#projects').innerHTML=os.slice().reverse().map(objHTML).join('')||'<small>No objectives yet.</small>'}
+async function loadApprovals(){
+  const list=await j('/api/approvals',{headers:hdr()});
+  $('#approvals').innerHTML=Array.isArray(list)?(list.map(a=>`<div class="card" style="margin-top:6px"><b style="font-size:13px">${a.approval_id} — ${a.action}</b><small>${a.details||''} · by ${a.requested_by}</small> <span class="st-${a.status}">${a.status}</span>
+  ${a.status==='PENDING'?`<button onclick="decide('${a.approval_id}','APPROVED')">Approve</button> <button class="ghost" onclick="decide('${a.approval_id}','REJECTED')">Reject</button>`:''}</div>`).join('')||'<small>No approval requests.</small>'):'<small>Sign in as Founder to view approvals.</small>';
+}
+async function decide(id,d){await j(`/api/approvals/${id}/${d}`,{method:'POST',headers:hdr()}); loadApprovals();}
+$('#aprform').addEventListener('submit',async e=>{e.preventDefault();
+  await j('/api/approvals',{method:'POST',headers:hdr(),body:JSON.stringify({action:$('#apraction').value,details:'Requested from Server Room'})});
+  $('#apraction').value=''; loadApprovals();});
+// incidents
+async function loadIncidents(){
+  const inc=await j('/api/incidents?limit=30');
+  $('#incidents').innerHTML=inc.length?`<table><tr><th>ID</th><th>Severity</th><th>Agent</th><th>Task</th><th>Status</th><th>Message / Resolution</th></tr>${inc.map(i=>`<tr><td>${i.incident_id}</td><td>${i.severity}</td><td>${i.agent_id}</td><td>${i.task_id||''}</td><td class="st-${i.status}">${i.status}</td><td>${i.message}${i.resolution?' — '+i.resolution:''}</td></tr>`).join('')}</table>`:'<small>No incidents recorded.</small>';
+}
+// factory
+$('#facform').addEventListener('submit',async e=>{e.preventDefault();
+  const skills=$('#facskills').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const r=await j('/api/factory/agents',{method:'POST',headers:hdr(),body:JSON.stringify({name:$('#facname').value,department_id:$('#facdept').value,skills})});
+  $('#facmsg').innerHTML=r.agent_id?`<div class="card">Created <b style="font-size:13px">${r.name}</b><small>${r.agent_id} · ${r.department} · manager ${r.manager}</small></div>`:`<div class="card">${JSON.stringify(r)}</div>`;
+  refreshDepts();});
+// business
+async function loadBiz(){
+  const ws=await j('/api/business/workspaces');
+  $('#workspaces').innerHTML=ws.map(w=>`<div class="card" style="margin-top:6px"><b style="font-size:13px">${w.name}</b><small>${w.workspace_id} · ${w.industry||''}</small></div>`).join('')||'<small>No workspaces yet.</small>';
+  $('#leadws').innerHTML=ws.map(w=>`<option value="${w.workspace_id}">${w.name}</option>`).join('');
+  if(ws.length){const leads=await j('/api/business/'+ws[0].workspace_id+'/leads');
+    $('#leads').innerHTML=leads.map(l=>`<div class="card" style="margin-top:6px"><b style="font-size:13px">${l.name}</b><small>${l.source||''} · ${l.status||'NEW'}</small></div>`).join('');}
+}
+$('#wsform').addEventListener('submit',async e=>{e.preventDefault();
+  await j('/api/business/workspaces',{method:'POST',headers:hdr(),body:JSON.stringify({name:$('#wsname').value,industry:$('#wsind').value})}); loadBiz();});
+$('#leadform').addEventListener('submit',async e=>{e.preventDefault();
+  await j('/api/business/'+$('#leadws').value+'/leads',{method:'POST',headers:hdr(),body:JSON.stringify({name:$('#leadname').value,source:$('#leadsource').value,status:'NEW'})}); loadBiz();});
+// account
+async function whoami(){const me=await j('/api/auth/me',{headers:hdr()}); $('#who').textContent=me.email?(`${me.email} · ${me.role} · ${me.workspace_id}`):'not signed in (dev Founder mode)';}
+$('#regform').addEventListener('submit',async e=>{e.preventDefault();
+  const r=await j('/api/auth/register',{method:'POST',headers:hdr(),body:JSON.stringify({email:$('#regemail').value,password:$('#regpass').value})});
+  $('#acctmsg').innerHTML=`<div class="card">${r.email?('Account created: '+r.email+' ('+r.role+') — now sign in.'):JSON.stringify(r)}</div>`;});
+$('#loginform').addEventListener('submit',async e=>{e.preventDefault();
+  const r=await j('/api/auth/login',{method:'POST',headers:hdr(),body:JSON.stringify({email:$('#logemail').value,password:$('#logpass').value})});
+  if(r.token){TOKEN=r.token; localStorage.setItem('uaa_token',TOKEN); $('#acctmsg').innerHTML='<div class="card">Signed in.</div>'; whoami();}
+  else $('#acctmsg').innerHTML='<div class="card">Sign-in failed.</div>';});
+$('#logout').addEventListener('click',()=>{TOKEN=''; localStorage.removeItem('uaa_token'); whoami();});
+function refreshRoom(){refreshStats();refreshObjectives()}
+refreshDepts(); refreshEvents(); refreshRoom(); whoami();
+setInterval(refreshRoom,4000); setInterval(refreshEvents,8000);
+</script>
+</body>
+</html>

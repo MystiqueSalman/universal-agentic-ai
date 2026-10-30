@@ -1,0 +1,15 @@
+services:
+  universal-agentic-ai:
+    build: .
+    ports:
+      - "8100:8100"
+    environment:
+      # OPENAI_API_KEY: "${OPENAI_API_KEY:-}"   # optional; local fallback without it
+      UAA_REQUIRE_AUTH: "0"                    # set to "1" to enforce logins publicly
+      UAA_MODEL: "gpt-4o-mini"
+    volumes:
+      - uaa-data:/srv/universal-agentic-ai/backend/data
+    restart: unless-stopped
+
+volumes:
+  uaa-data:
