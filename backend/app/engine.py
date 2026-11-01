@@ -63,6 +63,7 @@ class Objective:
             "progress_pct": round(100 * done / len(self.tasks)) if self.tasks else 0,
             "tasks": [{"task_id": t.task_id, "title": t.title, "department_id": t.department_id,
                        "agent_id": t.agent_id, "status": t.status, "kind": t.kind,
+                       "attempts": t.attempts,
                        "output_path": t.output_path, "result": t.result, "error": t.error}
                       for t in self.tasks],
         }

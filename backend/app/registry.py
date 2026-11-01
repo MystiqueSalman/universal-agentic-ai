@@ -225,6 +225,27 @@ class Registry:
     def get(self, agent_id: str) -> Agent | None:
         return self.agents.get(agent_id)
 
+    @staticmethod
+    def _skill_matches(keyword: str, skill: str) -> bool:
+        """Whether a task keyword matches an agent skill.
+
+        Exact matches always count, at any length (a genuine "c" programming
+        task must still find the C/C++ agent). Substring matches count only
+        when BOTH sides are at least 3 characters: the registry derives some
+        skills from name tokens, producing junk fragments ("c", "a", "b",
+        "to", "up", "x") that otherwise substring-match almost any keyword
+        and hijack routing — the audit of 2026-11-01 found the C/C++ agent
+        absorbing 28 unrelated healed tasks (architecture, documentation,
+        product requirements) through exactly this hole, in both primary
+        assignment and the Level-1 self-healing reassignment path, which
+        share this function.
+        """
+        if keyword == skill:
+            return True
+        if len(keyword) < 3 or len(skill) < 3:
+            return False
+        return keyword in skill or skill in keyword
+
     def find_by_skill(self, keywords: list[str], department_id: str | None = None,
                       exclude: set[str] | None = None) -> Agent | None:
         """Best available specialist whose skills match the most keywords."""
@@ -234,10 +255,9 @@ class Registry:
                 continue
             if exclude and a.agent_id in exclude:
                 continue
-            # Exact skill matches outweigh substring matches (avoids e.g. the
-            # C/C++ agent winning "backend" just because "c" is in "backend").
+            # Exact skill matches outweigh substring matches 3:1.
             score = sum((3 if k in a.skills else 1)
-                        for k in keywords if any(k in s or s in k for s in a.skills))
+                        for k in keywords if any(self._skill_matches(k, s) for s in a.skills))
             if a.status == "IDLE":
                 score += 0.1
             if score > best_score:
